@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  nats:
+    image: nats:2.10-alpine
+    container_name: nats_broker
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  sum-service:
+    image: golang:1.26-alpine
+    container_name: sum_service
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      NATS_URL: "nats://nats:4222"
+    command: go run ./sum-service/main.go
+    depends_on:
+      - nats
+
+  square-service:
+    image: golang:1.26-alpine
+    container_name: square_service
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      NATS_URL: "nats://nats:4222"
+    command: go run ./square-service/main.go
+    depends_on:
+      - nats
+
+  filter-service:
+    image: golang:1.26-alpine
+    container_name: filter_service
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      NATS_URL: "nats://nats:4222"
+    command: go run ./filter-service/main.go
+    depends_on:
+      - nats
+
+  generator-service:
+    image: golang:1.26-alpine
+    container_name: generator_service
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      NATS_URL: "nats://nats:4222"
+    command: go run ./generator-service/main.go
+    depends_on:
+      - nats
